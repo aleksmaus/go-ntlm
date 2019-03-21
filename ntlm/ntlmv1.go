@@ -135,8 +135,9 @@ func (n *V1Session) Seal(message []byte) ([]byte, []byte, error) {
 
 }
 
-func (n *V1Session) UnSeal(message []byte) ([]byte, error) {
-	return rc4(n.clientHandle, message), nil
+func (n *V1Session) UnSeal(message []byte) ([]byte, []byte, error) {
+	mac := ntlmV1Mac(message, int(n.sequenceNumber)-1, n.serverHandle, n.ServerSealingKey, n.ServerSigningKey, n.NegotiateFlags)
+	return rc4(n.clientHandle, message), mac, nil
 }
 
 //SealV2 returns the sealed message and signature

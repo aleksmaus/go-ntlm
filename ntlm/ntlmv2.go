@@ -120,12 +120,12 @@ func (n *V2Session) Seal(message []byte) ([]byte, []byte, error) {
 	return d, s.Bytes(), nil
 }
 
-func (n *V2Session) UnSeal(message []byte) ([]byte, error) {
+func (n *V2Session) UnSeal(message []byte) ([]byte, []byte, error) {
 	//return rc4K(n.ServerSealingKey, message)
 	dec := rc4(n.serverHandle, message)
 	//move the stream along by calculating signature as well
-	NtlmV2Mac(message, int(n.sequenceNumber), n.serverHandle, n.ServerSealingKey, n.ServerSigningKey, n.NegotiateFlags)
-	return dec, nil
+	sig := NtlmV2Mac(dec, int(n.sequenceNumber)-1, n.serverHandle, n.ServerSealingKey, n.ServerSigningKey, n.NegotiateFlags)
+	return dec, sig, nil
 }
 
 //SealV2 takes a message to seal and a message to sign. Returns each seperately. This is a requirement for DCERP
